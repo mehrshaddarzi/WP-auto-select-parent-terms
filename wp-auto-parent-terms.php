@@ -78,7 +78,7 @@ class WP_Auto_Parent_Terms
             'id' => 'auto-parent-terms',
             'title' => 'انتخاب اتوماتیک دسته های والد پست',
             'html' => $html,
-            'number_per_process' => 4,
+            'number_per_process' => 50,
             'require_excel_file' => false,
             'get_excel_content' => function ($array, $args) {
                 global $wpdb;
@@ -162,13 +162,18 @@ class WP_Auto_Parent_Terms
                 // Get Terms Ids
                 $db_terms = wp_get_post_terms($post_id, $taxonomy);
                 $db_terms_ids = array_map('intval', wp_list_pluck($db_terms, 'term_id'));
+                if (!empty($db_terms_ids)) {
 
-                // Get Parent Ids
-                $prepare_terms_ids = self::wp_prepare_terms_ids_with_parent($db_terms_ids, $taxonomy);
+                    // Get Parent Ids
+                    $prepare_terms_ids = array_map('intval', self::wp_prepare_terms_ids_with_parent($db_terms_ids, $taxonomy));
+                    // error_log( print_r( $post_id, true ) );
 
-                // Check If Changes
-                if (!empty(array_diff($db_terms_ids, $prepare_terms_ids))) {
-                    wp_set_post_terms($post_id, $prepare_terms_ids, $taxonomy, false);
+                    // Check If Changes
+                    // @see https://stackoverflow.com/questions/38629056/how-to-check-if-two-arrays-contain-the-same-values
+                    $areEqual = array_diff($db_terms_ids, $prepare_terms_ids) === array_diff($prepare_terms_ids, $db_terms_ids);
+                    if (!$areEqual) {
+                        wp_set_post_terms($post_id, $prepare_terms_ids, $taxonomy, false);
+                    }
                 }
             },
             'after_completed_process' => function () {

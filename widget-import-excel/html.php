@@ -1,18 +1,25 @@
-<?php echo $data['html']; ?>
+<form action="#" method="post" id="<?php echo $data['id']; ?>_form" enctype="multipart/form-data">
 
-<?php
-if ($data['require_excel_file']) {
-    ?>
-    <input type="file" id="<?php echo $data['id']; ?>_excel_file" name="<?php echo $data['id']; ?>_excel_file">
-    <?php
-} else {
-    ?>
-    <p class="submit"><input type="submit" name="" id="<?php echo $data['id']; ?>_button_process" class="button button-primary" value="ارزیابی داده ها"><span class="spinner"></span></p>
-    <?php
-}
-?>
+    <?php echo $data['html']; ?>
 
-<div id="<?php echo $data['id']; ?>-excel-import-alert"></div>
+    <?php
+    if ($data['require_excel_file']) {
+        ?>
+        <input type="file" id="<?php echo $data['id']; ?>_excel_file" name="<?php echo $data['id']; ?>_excel_file">
+        <?php
+    } else {
+        ?>
+        <p class="submit" style="margin-top: 15px;">
+            <input type="submit" name="" id="<?php echo $data['id']; ?>_button_process"
+                                 class="button" value="ارزیابی داده ها"><span class="spinner"></span>
+        </p>
+        <?php
+    }
+    ?>
+
+    <div id="<?php echo $data['id']; ?>-excel-import-alert"></div>
+
+</form>
 
 <script>
     jQuery(document).ready(function ($) {
@@ -71,22 +78,23 @@ if ($data['require_excel_file']) {
             });
         });
 
-    <?php
+        <?php
         } else {
         ?>
 
         // RunFirst
         $("#<?php echo $data['id']; ?>_button_process").on("click", function (e) {
+            e.preventDefault();
 
             // Notification Reset
             var excel_alert_div = $("#<?php echo $data['id']; ?>-excel-import-alert");
             excel_alert_div.html('لطفا کمی صبر کنید ..').show();
 
             // Create Form Data
-            var formData = new FormData();
+            var formData = new FormData(document.getElementById("<?php echo $data['id']; ?>_form"));
             formData.append('action', '<?php echo $data['action']; ?>');
 
-            // Upload Excel File
+            // Ajax Request
             $.ajax({
                 type: "POST",
                 url: ajaxurl,
